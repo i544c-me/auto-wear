@@ -1,0 +1,10 @@
+[project]
+name = "wear"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fake-bpy-module>=20250215",
+    "ruff>=0.9.6",
+]
