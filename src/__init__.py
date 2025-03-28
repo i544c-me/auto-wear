@@ -2,7 +2,7 @@ import bpy
 
 class Sidebar(bpy.types.Panel):
     bl_label = "i544cAutoWear"
-    bl_idname = "i544cAutoWear.sidebar"
+    bl_idname = "i544cAutoWear_PT_sidebar"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "i544cAutoWear"
@@ -21,20 +21,40 @@ class Operator(bpy.types.Operator):
     bl_label = "着せる！"
 
     def execute(self, context):
-        self.report({'INFO'}, "ボタンがクリックされました！")
+        avatar_object = context.scene.avatar_object
+        cloth_object = context.scene.cloth_object
+
+        # parent
+        # TODO: オブジェクトモードでのみ実行可能なので、オブジェクトモードに自動で遷移するか、オブジェクトモードでなければ実行できないようにする
+        bpy.ops.object.select_all(action="DESELECT")
+        for obj in cloth_object.children:
+            obj.select = True
+
+        bpy.context.view_layer.objects.active = avatar_object
+        bpy.ops.object.parent_set(keep_transform=True)
+
+        self.report({'INFO'}, "処理が完了しました！")
         return {'FINISHED'}
+
+
+def is_parent(self, obj):
+    return obj.parent is None
 
 
 def register():
     bpy.utils.register_class(Sidebar)
     bpy.utils.register_class(Operator)
-    bpy.types.Scene.avatar_object = bpy.props.StringProperty(
+    bpy.types.Scene.avatar_object = bpy.props.PointerProperty(
         name="Avatar Object",
         description="アバターのオブジェクトの名前",
+        type=bpy.types.Object,
+        poll=is_parent,
     )
-    bpy.types.Scene.cloth_object = bpy.props.StringProperty(
+    bpy.types.Scene.cloth_object = bpy.props.PointerProperty(
         name="Cloth Object",
         description="服のオブジェクトの名前",
+        type=bpy.types.Object,
+        poll=is_parent,
     )
 
 def unregister():
