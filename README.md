@@ -3,6 +3,10 @@
 Blender でのボーンの移植を自動化する、Blender のアドオンです。
 ボーンやメッシュの位置を合わせることはこのアドオンの範囲外です。あらかじめ手動やツール使用で合わせてください。
 
+## Build
+```pwsh
+& 'C:\Program Files\Blender Foundation\Blender 4.3\blender.exe' --command extension build --source-dir src
+```
 
 ## TODO
 - [ ] 主要な機能を実装する

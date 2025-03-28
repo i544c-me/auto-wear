@@ -1,0 +1,21 @@
+schema_version = "1.0.0"
+
+id = "i544cAutoWear"
+version = "0.1.0"
+name = "i544cAutoWear"
+tagline = "服からアバターへ骨を移植するツールです"
+maintainer = "i544c <vrc@i544c.me>"
+type = "add-on"
+
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+[build]
+paths_exclude_pattern = [
+  "__pycache__/",
+  ".*",
+  "*.zip",
+]
