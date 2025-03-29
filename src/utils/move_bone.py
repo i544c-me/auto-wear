@@ -1,11 +1,13 @@
 import bpy
 
 class BoneTree:
+    "ボーンを正規化して木構造として表現する"
     bone_obj: bpy.types.Bone
     name: str
     normalized_name: str
     children: list["BoneTree"]
     parent: "BoneTree"
+    delete_flag: bool
 
     def __init__(self, bone_obj: bpy.types.Bone):
         self.bone_obj = bone_obj
@@ -13,6 +15,7 @@ class BoneTree:
         self.normalized_name = self._normalize_name(self.name)
         self.children = []
         self.parent = None
+        self.delete_flag = False
     
     def _normalize_name(self, name: str) -> str:
         return name.lower() \
@@ -35,6 +38,20 @@ class BoneTree:
         for child in self.children:
             child.display(level + 1)
 
+    def list(self):
+        "root から順に返すイテレータ"
+        if not self.delete_flag:
+            yield self
+
+        for child in self.children:
+            yield from child.list()
+
+    def find(self, name: str) -> "BoneTree":
+        for child in self.list():
+            if name == child.normalized_name \
+                or name + ".001" == child.normalized_name \
+                or name == child.normalized_name + ".001":
+                return child
 
     @staticmethod
     def create(root_bone: bpy.types.Bone) -> "BoneTree":
@@ -45,6 +62,11 @@ class BoneTree:
 
         return root
 
+    @staticmethod
+    def set_delete(node: "BoneTree", flag=True):
+        node.delete_flag = flag
+        for child in node.children:
+            BoneTree.set_delete(child, flag)
 
 def main(avatar_obj: bpy.types.Object, cloth_obj: bpy.types.Object):
     avatar_root_bone: bpy.types.Bone = [bone for bone in avatar_obj.data.bones if bone.parent is None][0]
@@ -55,3 +77,24 @@ def main(avatar_obj: bpy.types.Object, cloth_obj: bpy.types.Object):
 
     avatar_tree.display()
     cloth_tree.display()
+
+    # ボーンを結合する
+    bpy.ops.object.select_all(action="DESELECT")
+    cloth_obj.select_set(True)
+    avatar_obj.select_set(True)
+    bpy.context.view_layer.objects.active = avatar_obj
+    bpy.ops.object.join()
+
+    # ボーンを移植する
+    bpy.ops.object.mode_set(mode="EDIT")
+
+    for cloth_bone in cloth_tree.list():
+        same_in_avatar = avatar_tree.find(cloth_bone.normalized_name)
+
+        if not same_in_avatar:
+            avatar_parent_bone = avatar_obj.data.edit_bones.get(cloth_bone.parent.name)
+            cloth_target_bone = avatar_obj.data.edit_bones.get(cloth_bone.name)
+            cloth_target_bone.parent = avatar_parent_bone
+            BoneTree.set_delete(cloth_bone, True)
+
+    bpy.ops.object.mode_set(mode="OBJECT")

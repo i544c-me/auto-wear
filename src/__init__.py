@@ -40,7 +40,7 @@ class Operator(bpy.types.Operator):
 
 
 def is_parent(self, obj):
-    return obj.parent is None
+    return obj.type == "ARMATURE"
 
 
 def register():
