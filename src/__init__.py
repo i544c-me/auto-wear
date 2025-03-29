@@ -13,22 +13,24 @@ class Sidebar(bpy.types.Panel):
         layout.label(text="今のところは自動的にボーンを移植するツールです。")
         layout.prop_search(scene, "avatar_object", bpy.data, "objects", text="アバターのオブジェクト")
         layout.prop_search(scene, "cloth_object", bpy.data, "objects", text="服のオブジェクト")
-        layout.operator("object.i544c_autowear_operator")
+        row = layout.row()
+        row.enabled = context.mode == "OBJECT" # 編集モードなどではこの先の処理を実行できないため
+        row.operator("object.i544c_autowear_operator")
 
 
 class Operator(bpy.types.Operator):
+    "ボーンを移植します（オブジェクトモードでのみ実行可能）"
     bl_idname = "object.i544c_autowear_operator"
     bl_label = "着せる！"
 
     def execute(self, context):
-        avatar_object = context.scene.avatar_object
-        cloth_object = context.scene.cloth_object
+        avatar_object: bpy.types.Object = context.scene.avatar_object
+        cloth_object: bpy.types.Object = context.scene.cloth_object
 
         # parent
-        # TODO: オブジェクトモードでのみ実行可能なので、オブジェクトモードに自動で遷移するか、オブジェクトモードでなければ実行できないようにする
         bpy.ops.object.select_all(action="DESELECT")
         for obj in cloth_object.children:
-            obj.select = True
+            obj.select_set(True)
 
         bpy.context.view_layer.objects.active = avatar_object
         bpy.ops.object.parent_set(keep_transform=True)
