@@ -1,5 +1,7 @@
 import bpy
 
+from .utils import parent, move_bone
+
 class Sidebar(bpy.types.Panel):
     bl_label = "i544cAutoWear"
     bl_idname = "i544cAutoWear_PT_sidebar"
@@ -28,12 +30,10 @@ class Operator(bpy.types.Operator):
         cloth_object: bpy.types.Object = context.scene.cloth_object
 
         # parent
-        bpy.ops.object.select_all(action="DESELECT")
-        for obj in cloth_object.children:
-            obj.select_set(True)
-
-        bpy.context.view_layer.objects.active = avatar_object
-        bpy.ops.object.parent_set(keep_transform=True)
+        parent.parent_object(cloth_object, avatar_object)
+ 
+        # move-bone
+        move_bone.main(avatar_object, cloth_object)
 
         self.report({'INFO'}, "処理が完了しました！")
         return {'FINISHED'}
