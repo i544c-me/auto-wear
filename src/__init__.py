@@ -1,6 +1,6 @@
 import bpy
 
-from .utils import parent, move_bone
+from .utils import ops, bone
 
 class Sidebar(bpy.types.Panel):
     bl_label = "i544cAutoWear"
@@ -31,10 +31,13 @@ class Operator(bpy.types.Operator):
         cloth_child_objects = cloth_object.children # parent で失われてしまうため保存しておく
 
         # parent
-        parent.parent_object(cloth_object, avatar_object)
+        ops.parent_object(cloth_object, avatar_object)
  
         # move-bone
-        move_bone.main(avatar_object, cloth_child_objects, cloth_object)
+        bone.main(avatar_object, cloth_child_objects, cloth_object)
+
+        # change-armature
+        ops.change_armature(cloth_child_objects, avatar_object)
 
         self.report({'INFO'}, "処理が完了しました！")
         return {'FINISHED'}
