@@ -28,12 +28,13 @@ class Operator(bpy.types.Operator):
     def execute(self, context):
         avatar_object: bpy.types.Object = context.scene.avatar_object
         cloth_object: bpy.types.Object = context.scene.cloth_object
+        cloth_child_objects = cloth_object.children # parent で失われてしまうため保存しておく
 
         # parent
         parent.parent_object(cloth_object, avatar_object)
  
         # move-bone
-        move_bone.main(avatar_object, cloth_object)
+        move_bone.main(avatar_object, cloth_child_objects, cloth_object)
 
         self.report({'INFO'}, "処理が完了しました！")
         return {'FINISHED'}
