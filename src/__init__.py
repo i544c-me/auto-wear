@@ -4,7 +4,7 @@ from .utils import parent, move_bone
 
 class Sidebar(bpy.types.Panel):
     bl_label = "i544cAutoWear"
-    bl_idname = "i544cAutoWear_PT_sidebar"
+    bl_idname = "OBJECT_PT_sidebar"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "i544cAutoWear"

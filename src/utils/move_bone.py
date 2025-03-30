@@ -40,9 +40,10 @@ class BoneTree:
 
     def list(self):
         "root から順に返すイテレータ"
-        if not self.delete_flag:
-            yield self
+        if self.delete_flag:
+            return
 
+        yield self
         for child in self.children:
             yield from child.list()
 
@@ -52,6 +53,9 @@ class BoneTree:
                 or name + ".001" == child.normalized_name \
                 or name == child.normalized_name + ".001":
                 return child
+
+    def is_leaf_bone(self) -> bool:
+        return self.name.endswith(["_end"])
 
     @staticmethod
     def create(root_bone: bpy.types.Bone) -> "BoneTree":
@@ -67,6 +71,7 @@ class BoneTree:
         node.delete_flag = flag
         for child in node.children:
             BoneTree.set_delete(child, flag)
+
 
 def main(avatar_obj: bpy.types.Object, cloth_obj: bpy.types.Object):
     avatar_root_bone: bpy.types.Bone = [bone for bone in avatar_obj.data.bones if bone.parent is None][0]
@@ -91,10 +96,14 @@ def main(avatar_obj: bpy.types.Object, cloth_obj: bpy.types.Object):
     for cloth_bone in cloth_tree.list():
         same_in_avatar = avatar_tree.find(cloth_bone.normalized_name)
 
-        if not same_in_avatar:
-            avatar_parent_bone = avatar_obj.data.edit_bones.get(cloth_bone.parent.name)
+        if not same_in_avatar and not cloth_bone.is_leaf_bone:
+            avatar_parent_bone = avatar_obj.data.edit_bones.get(avatar_tree.find(cloth_bone.parent.normalized_name).name)
             cloth_target_bone = avatar_obj.data.edit_bones.get(cloth_bone.name)
             cloth_target_bone.parent = avatar_parent_bone
+            print(f"元の名前は {cloth_bone.name}")
+            print(f"{cloth_target_bone.name} の親を {avatar_parent_bone.name} に変更")
             BoneTree.set_delete(cloth_bone, True)
+        else:
+            print(f"{cloth_bone.name} はアバターにもあるボーンのため移動しない")
 
     bpy.ops.object.mode_set(mode="OBJECT")
