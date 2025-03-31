@@ -1,4 +1,7 @@
+from collections.abc import Iterator
 import bpy
+
+from . import ops
 
 class BoneTree:
     "ボーンを正規化して木構造として表現する"
@@ -32,8 +35,8 @@ class BoneTree:
         for child in self.children:
             child.display(level + 1)
 
-    def list(self):
-        "root から順に返すイテレータ"
+    def list(self) -> Iterator["BoneTree"]:
+        "root から順に返すイテレータを返す"
         if self.delete_flag:
             return
 
@@ -92,23 +95,20 @@ def main(avatar_obj: bpy.types.Object, cloth_child_objs: tuple[bpy.types.Object]
     bpy.ops.object.join()
 
     # ボーンを移植する
-    bpy.ops.object.mode_set(mode="EDIT")
+    with ops.use_edit_mode():
+        for cloth_bone in cloth_tree.list():
+            same_in_avatar = avatar_tree.find(cloth_bone.normalized_name)
 
-    for cloth_bone in cloth_tree.list():
-        same_in_avatar = avatar_tree.find(cloth_bone.normalized_name)
+            if same_in_avatar or cloth_bone.is_leaf_bone():
+                print(f"{cloth_bone.name} はアバターにもあるボーンのため移動しない")
+                continue
 
-        if same_in_avatar or cloth_bone.is_leaf_bone():
-            print(f"{cloth_bone.name} はアバターにもあるボーンのため移動しない")
-            continue
-
-        avatar_parent_bone = avatar_obj.data.edit_bones.get(avatar_tree.find(cloth_bone.parent.normalized_name).name)
-        cloth_target_bone = avatar_obj.data.edit_bones.get(cloth_bone.name)
-        cloth_target_bone.parent = avatar_parent_bone
-        print(f"元の名前は {cloth_bone.name}")
-        print(f"{cloth_target_bone.name} の親を {avatar_parent_bone.name} に変更")
-        BoneTree.set_delete(cloth_bone, True)
-
-    bpy.ops.object.mode_set(mode="OBJECT")
+            avatar_parent_bone = avatar_obj.data.edit_bones.get(avatar_tree.find(cloth_bone.parent.normalized_name).name)
+            cloth_target_bone = avatar_obj.data.edit_bones.get(cloth_bone.name)
+            cloth_target_bone.parent = avatar_parent_bone
+            print(f"元の名前は {cloth_bone.name}")
+            print(f"{cloth_target_bone.name} の親を {avatar_parent_bone.name} に変更")
+            BoneTree.set_delete(cloth_bone, True)
 
     # 頂点グループを修正する
     for obj in cloth_child_objs:

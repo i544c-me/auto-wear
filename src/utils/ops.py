@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import bpy
 
 def parent_object(from_obj: bpy.types.Object, to_obj: bpy.types.Object):
@@ -14,3 +15,10 @@ def parent_object(from_obj: bpy.types.Object, to_obj: bpy.types.Object):
 def change_armature(objs: tuple[bpy.types.Object], avatar_obj: tuple[bpy.types.Object]):
     for obj in objs:
         obj.modifiers["Armature"].object = avatar_obj
+
+
+@contextmanager
+def use_edit_mode():
+    bpy.ops.object.mode_set(mode="EDIT")
+    yield
+    bpy.ops.object.mode_set(mode="OBJECT")
