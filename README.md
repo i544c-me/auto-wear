@@ -5,7 +5,7 @@ Blender でのボーンの移植を自動化する、Blender のアドオンで�
 
 ## Build
 ```pwsh
-& 'C:\Program Files\Blender Foundation\Blender 4.3\blender.exe' --command extension build --source-dir src
+& 'C:\Program Files\Blender Foundation\Blender 4.4\blender.exe' --command extension build --source-dir src
 ```
 
 ## TODO
