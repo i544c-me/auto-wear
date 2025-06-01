@@ -2,6 +2,9 @@
 
 version: 2
 
+builds:
+  - skip: true # ビルドはワークフローで実施するため
+
 changelog:
   sort: asc
   filters:
