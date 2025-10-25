@@ -3,8 +3,10 @@ import bpy
 
 from . import ops
 
+
 class BoneTree:
     "ボーンを正規化して木構造として表現する"
+
     bone_obj: bpy.types.Bone
     name: str
     normalized_name: str
@@ -46,9 +48,11 @@ class BoneTree:
 
     def find(self, name: str) -> "BoneTree":
         for child in self.list():
-            if name == child.normalized_name \
-                or name + ".001" == child.normalized_name \
-                or name == child.normalized_name + ".001":
+            if (
+                name == child.normalized_name
+                or name + ".001" == child.normalized_name
+                or name == child.normalized_name + ".001"
+            ):
                 return child
 
     def is_leaf_bone(self) -> bool:
@@ -71,15 +75,48 @@ class BoneTree:
 
 
 def normalize_name(name: str) -> str:
-    return name.lower() \
-        .replace(" ", "") \
-        .replace("_", ".") \
-        .replace("toes", "toe")
+    """
+    ボーン名を正規化し、比較可能にする
+    Upper Leg.L → upperleg.l
+    Toes.L → toe.l
+    L_UpperLeg → upperleg.l
+    """
+    import re
+
+    # 小文字に変換
+    normalized = name.lower()
+
+    # プレフィックスパターン（L_, R_, l_, r_）を検出して末尾に移動
+    # 例: "l_upperleg" → "upperleg.l"
+    prefix_match = re.match(r"^([lr])_(.+)$", normalized)
+    if prefix_match:
+        side = prefix_match.group(1)  # "l" or "r"
+        bone_name = prefix_match.group(2)  # "upperleg"
+        normalized = f"{bone_name}.{side}"
+    else:
+        # プレフィックスがない場合は通常の処理
+        normalized = normalized.replace("_", ".")
+
+    # スペースを除去
+    normalized = normalized.replace(" ", "")
+
+    # 特殊なボーン名の正規化
+    normalized = normalized.replace("toes", "toe")
+
+    return normalized
 
 
-def main(avatar_obj: bpy.types.Object, cloth_child_objs: tuple[bpy.types.Object], cloth_obj: bpy.types.Object):
-    avatar_root_bone: bpy.types.Bone = [bone for bone in avatar_obj.data.bones if bone.parent is None][0]
-    cloth_root_bone: bpy.types.Bone = [bone for bone in cloth_obj.data.bones if bone.parent is None][0]
+def main(
+    avatar_obj: bpy.types.Object,
+    cloth_child_objs: tuple[bpy.types.Object],
+    cloth_obj: bpy.types.Object,
+):
+    avatar_root_bone: bpy.types.Bone = [
+        bone for bone in avatar_obj.data.bones if bone.parent is None
+    ][0]
+    cloth_root_bone: bpy.types.Bone = [
+        bone for bone in cloth_obj.data.bones if bone.parent is None
+    ][0]
 
     avatar_tree = BoneTree.create(avatar_root_bone)
     cloth_tree = BoneTree.create(cloth_root_bone)
@@ -103,7 +140,9 @@ def main(avatar_obj: bpy.types.Object, cloth_child_objs: tuple[bpy.types.Object]
                 print(f"{cloth_bone.name} はアバターにもあるボーンのため移動しない")
                 continue
 
-            avatar_parent_bone = avatar_obj.data.edit_bones.get(avatar_tree.find(cloth_bone.parent.normalized_name).name)
+            avatar_parent_bone = avatar_obj.data.edit_bones.get(
+                avatar_tree.find(cloth_bone.parent.normalized_name).name
+            )
             cloth_target_bone = avatar_obj.data.edit_bones.get(cloth_bone.name)
             cloth_target_bone.parent = avatar_parent_bone
             print(f"元の名前は {cloth_bone.name}")
