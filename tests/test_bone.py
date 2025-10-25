@@ -11,13 +11,12 @@ sys.path.insert(0, str(project_root))
 sys.modules["bpy"] = MagicMock()
 sys.modules["bpy.types"] = MagicMock()
 
-# メインのコードから normalize_name 関数をインポート
-from src.utils.bone import normalize_name
+# このタイミングでメインのコードから normalize_name 関数をインポート
+# そうでなければエラーになる
+from src.utils.bone import normalize_name  # noqa: E402
 
 
 class TestNormalizeName(unittest.TestCase):
-    """normalize_name 関数のテスト"""
-
     def test_suffix_pattern_with_space(self):
         """ラシューシャのテスト"""
         self.assertEqual(normalize_name("Upper Leg.L"), "upperleg.l")
