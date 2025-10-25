@@ -50,6 +50,3 @@ requires-dist = [
     { name = "fake-bpy-module", specifier = ">=20250215" },
     { name = "ruff", specifier = ">=0.9.6" },
 ]
-
-[package.metadata.requires-dev]
-dev = []
