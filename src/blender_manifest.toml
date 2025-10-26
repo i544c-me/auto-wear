@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "i544cAutoWear"
-version = "0.1.0"
+version = "0.1.1"
 name = "i544cAutoWear"
 tagline = "服からアバターへ骨を移植するツールです"
 maintainer = "i544c <vrc@i544c.me>"

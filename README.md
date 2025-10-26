@@ -8,6 +8,11 @@ Blender でのボーンの移植を自動化する、Blender のアドオンで�
 & 'C:\Program Files\Blender Foundation\Blender 4.4\blender.exe' --command extension build --source-dir src
 ```
 
+## Test
+```pwsh
+python -m unittest discover -s tests -p 'test_*.py' -v
+```
+
 ## TODO
 - [ ] 主要な機能を実装する
 - [ ] フォーマッタを入れる
