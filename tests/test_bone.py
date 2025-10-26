@@ -23,6 +23,8 @@ class TestNormalizeName(unittest.TestCase):
         self.assertEqual(normalize_name("Upper Leg.R"), "upperleg.r")
         self.assertEqual(normalize_name("Upper Arm.L"), "upperarm.l")
         self.assertEqual(normalize_name("Upper Arm.R"), "upperarm.r")
+        self.assertEqual(normalize_name("Thumb Proximal.L"), "thumbproximal.l")
+        self.assertEqual(normalize_name("Thumb Proximal.R"), "thumbproximal.r")
         self.assertEqual(normalize_name("Toes.L"), "toe.l")
         self.assertEqual(normalize_name("Toes.R"), "toe.r")
 
@@ -41,6 +43,7 @@ class TestNormalizeName(unittest.TestCase):
         self.assertEqual(normalize_name("R_UpperLeg"), "upperleg.r")
         self.assertEqual(normalize_name("L_UpperArm"), "upperarm.l")
         self.assertEqual(normalize_name("R_UpperArm"), "upperarm.r")
+        self.assertEqual(normalize_name("L_thumb_proximal"), "thumbproximal.l")
         self.assertEqual(normalize_name("L_Toe"), "toe.l")
         self.assertEqual(normalize_name("R_Toe"), "toe.r")
 
@@ -63,8 +66,8 @@ class TestNormalizeName(unittest.TestCase):
     def test_complex_names(self):
         """複雑なボーン名のテスト"""
         # プレフィックス除去後、残りのアンダースコアはそのまま保持される
-        self.assertEqual(normalize_name("L_Upper_Leg"), "upper_leg.l")
-        self.assertEqual(normalize_name("R_Upper_Arm"), "upper_arm.r")
+        self.assertEqual(normalize_name("L_Upper_Leg"), "upperleg.l")
+        self.assertEqual(normalize_name("R_Upper_Arm"), "upperarm.r")
 
 
 if __name__ == "__main__":

@@ -89,9 +89,14 @@ def normalize_name(name: str) -> str:
     # プレフィックスパターン（L_, R_, l_, r_）を検出して末尾に移動
     # 例: "l_upperleg" → "upperleg.l"
     prefix_match = re.match(r"^([lr])_(.+)$", normalized)
+    suffix_match = re.match(r"^(.+)_([lr])$", normalized)
     if prefix_match:
         side = prefix_match.group(1)  # "l" or "r"
-        bone_name = prefix_match.group(2)  # "upperleg"
+        bone_name = prefix_match.group(2).replace("_", "")  # "upperleg"
+        normalized = f"{bone_name}.{side}"
+    elif suffix_match:
+        side = suffix_match.group(2)
+        bone_name = suffix_match.group(1).replace("_", "")
         normalized = f"{bone_name}.{side}"
     else:
         # プレフィックスがない場合は通常の処理
